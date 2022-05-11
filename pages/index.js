@@ -30,14 +30,22 @@ const HomePage = (props) => {
   return <MeetupList meetups={props.loadedMeetup} />;
 };
 
-export async function getStaticProps() {
+export async function getServerSideProps(context) {
   return {
     props: {
       loadedMeetup: MEETUP,
     },
-    revalidate: 1, // the amount in seconds after which a page re-generation can occur (defaults to false or no revalidation).
   };
 }
+
+// export async function getStaticProps() {
+//   return {
+//     props: {
+//       loadedMeetup: MEETUP, // will be passed to the page component as props
+//     },
+//     revalidate: 1, // the amount in seconds after which a page re-generation can occur (defaults to false or no revalidation).
+//   };
+// }
 //* The cool thing about this function is that instead of rendering the component function first, we'll execute the "getStaticProps" function get our data and then render that data into the HomPage component.
 
 export default HomePage;
@@ -59,4 +67,16 @@ export default HomePage;
 //? The revalidate property is the amount in seconds after which a page re-generation can occur (defaults to false or no revalidation).
 
 //! Static Generation (SG) :
-//? The same as SSG but with no data within the page being pre-rendered.
+//? The same as SSG but with no data within the page might been pre-rendered.
+
+//! Incremental Static Generation (ISG) :
+//? is a SSG rendering but with adding another key value pair, a key named “revalidate” with its value set to any time in seconds in the returned statement, it tells the page to regenerate at every given second and updates the data even after the build time without deploying it again.
+
+//! getServerSideProps() :
+//? When exporting a function called "getServerSideProps" (Server-Side Rendering) from a page, Next.js will pre-render this page on each request using the data returned by "getServerSideProps". This is useful if you want to fetch data that changes often, and have the page update to show the most current data.
+
+//! Inner workings of ""getServerSideProps"" and ""getStaticProps""
+//? Essentially, if you need to render a page at build time before making any request, then you’d use "getStaticProps". "getStaticProps" will mark the page to be statically rendered, meaning it won’t re-render until the next build. While this methodology is great for speed and SEO, it isn’t great for dynamic data that changes regularly.
+//? If you want to render a page at the time of the request, you can use "getServerSideProps" to render a page on the server before responding to a request. "getServerSideProps" will mark the page to be rendered on each request. In this method, the server will have to build the page every time, which can slow down the entire process. However, this methodology still offers SEO benefits over using plain Vanilla React, which would render your content on the client.(look to the diagram).
+//? The code within the function only gets executed on the server and pre-renders the page. However, "GetStaticProps" pre-renders the data at build time, whereas "getServerSideProps" runs at request time.
+//? "GetStaticProps" is best suited for data that doesn’t change frequently such as blog posts or news articles because unlike "GetServerSideProps", when data is fetched, it generates a static HTML and stored in a JSON file so it can be cached and immediately available before loading. However, for less static and more dynamic pages, this can be leveraged by using an Incremental Static Generation feature. By simply adding another key value pair, a key named “revalidate” with its value set to any time in seconds in the returned statement, it tells the page to regenerate at every given second and updates the data even after the build time without deploying it again. Unlike "getStaticProps", "getServerSideProps" doesn’t cache any data. It fetches new data on every request which often results in a slower performance but it has access to incoming requests or user’s specific data.

@@ -19,7 +19,6 @@ const MEETUP = [
     description: "This is a second meetup!",
   },
 ];
-
 const HomePage = (props) => {
   // const [loadedMeetup, setLoadedMeetup] = useState([]);
 
@@ -30,23 +29,28 @@ const HomePage = (props) => {
   return <MeetupList meetups={props.loadedMeetup} />;
 };
 
-export async function getServerSideProps(context) {
+//! SSG :
+export async function getStaticProps(context) {
   return {
     props: {
-      loadedMeetup: MEETUP,
+      loadedMeetup: MEETUP, // will be passed to the page component as props
     },
+    revalidate: 1, // the amount in seconds after which a page re-generation can occur (defaults to false or no revalidation).
   };
 }
+//* The cool thing about this function is that instead of rendering the component function first, we'll execute the "getStaticProps" function get our data and then render that data into the HomPage component.
 
-// export async function getStaticProps() {
+//! SSR :
+//  export async function getServerSideProps(context) {
+// const req = context.req;
+// const res = context.res;
+
 //   return {
 //     props: {
-//       loadedMeetup: MEETUP, // will be passed to the page component as props
+//       loadedMeetup: MEETUP,
 //     },
-//     revalidate: 1, // the amount in seconds after which a page re-generation can occur (defaults to false or no revalidation).
 //   };
 // }
-//* The cool thing about this function is that instead of rendering the component function first, we'll execute the "getStaticProps" function get our data and then render that data into the HomPage component.
 
 export default HomePage;
 

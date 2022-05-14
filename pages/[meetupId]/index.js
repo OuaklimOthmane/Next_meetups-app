@@ -1,7 +1,7 @@
-import { MongoClient, ObjectId } from "mongodb";
+// import { MongoClient, ObjectId } from "mongodb";
 import MeetupDetail from "../../components/meetups/MeetupDetail";
 
-const MeetupDetails = () => {
+const MeetupDetails = (props) => {
   return (
     <MeetupDetail
       image={props.meetupData.image}
@@ -13,22 +13,41 @@ const MeetupDetails = () => {
 };
 
 export async function getStaticPaths() {
-  const client = await MongoClient.connect(
-    "mongodb+srv://maximilian:arlAapzPqFyo4xUk@cluster0.ntrwp.mongodb.net/meetups?retryWrites=true&w=majority"
+  //! Setting Ids using data from MongoDb :
+  // const client = await MongoClient.connect(
+  //   "mongodb+srv://maximilian:arlAapzPqFyo4xUk@cluster0.ntrwp.mongodb.net/meetups?retryWrites=true&w=majority"
+  // );
+  // const db = client.db();
+
+  // const meetupsCollection = db.collection("meetups");
+
+  // const meetups = await meetupsCollection.find({}, { _id: 1 }).toArray();
+
+  // client.close();
+
+  //! Setting Ids using data from Firebase :
+  const response = await fetch(
+    "https://next-meetups-app-default-rtdb.firebaseio.com/meetup.json"
   );
-  const db = client.db();
+  const data = await response.json();
 
-  const meetupsCollection = db.collection("meetups");
-
-  const meetups = await meetupsCollection.find({}, { _id: 1 }).toArray();
-
-  client.close();
+  const newMeetups = [];
+  for (const key in data) {
+    const meetup = {
+      id: key,
+      ...data[key],
+    };
+    newMeetups.push(meetup);
+  }
 
   return {
     fallback: false,
-    paths: meetups.map((meetup) => ({
-      params: { meetupId: meetup._id.toString() },
-    })),
+    // paths: meetups.map((meetup) => ({
+    //   params: { meetupId: meetup._id.toString() },
+    // })),
+    paths: newMeetups.map((meetup) => {
+      return { params: { meetupId: meetup.id } };
+    }),
   };
 }
 
@@ -37,23 +56,41 @@ export async function getStaticProps(context) {
 
   const meetupId = context.params.meetupId;
 
-  const client = await MongoClient.connect(
-    "mongodb+srv://maximilian:arlAapzPqFyo4xUk@cluster0.ntrwp.mongodb.net/meetups?retryWrites=true&w=majority"
+  //! Getting meetup details from MongoDb :
+  // const client = await MongoClient.connect(
+  //   "mongodb+srv://maximilian:arlAapzPqFyo4xUk@cluster0.ntrwp.mongodb.net/meetups?retryWrites=true&w=majority"
+  // );
+  // const db = client.db();
+
+  // const meetupsCollection = db.collection("meetups");
+
+  // const selectedMeetup = await meetupsCollection.findOne({
+  //   _id: ObjectId(meetupId),
+  // });
+
+  // client.close();
+
+  //! Getting meetup details from Firebase :
+  const response = await fetch(
+    "https://next-meetups-app-default-rtdb.firebaseio.com/meetup.json"
   );
-  const db = client.db();
+  const data = await response.json();
 
-  const meetupsCollection = db.collection("meetups");
-
-  const selectedMeetup = await meetupsCollection.findOne({
-    _id: ObjectId(meetupId),
-  });
-
-  client.close();
+  const newMeetups = [];
+  for (const key in data) {
+    const meetup = {
+      id: key,
+      ...data[key],
+    };
+    newMeetups.push(meetup);
+  }
+  const selectedMeetup = newMeetups.find((meetup) => meetup.id === meetupId);
+  console.log(selectedMeetup);
 
   return {
     props: {
       meetupData: {
-        id: selectedMeetup._id.toString(),
+        id: selectedMeetup.id,
         title: selectedMeetup.title,
         address: selectedMeetup.address,
         image: selectedMeetup.image,

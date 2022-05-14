@@ -1,27 +1,8 @@
 import { useEffect, useState } from "react";
 import MeetupList from "../components/meetups/MeetupList";
 
-const MEETUP = [
-  {
-    id: "m1",
-    title: "A First Meetup",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Stadtbild_M%C3%BCnchen.jpg/1280px-Stadtbild_M%C3%BCnchen.jpg",
-    address: "Some address 5, 12345 Some City",
-    description: "This is a first meetup!",
-  },
-  {
-    id: "m2",
-    title: "A Second Meetup",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Stadtbild_M%C3%BCnchen.jpg/1280px-Stadtbild_M%C3%BCnchen.jpg",
-    address: "Some address 10, 12345 Some City",
-    description: "This is a second meetup!",
-  },
-];
 const HomePage = (props) => {
   // const [loadedMeetup, setLoadedMeetup] = useState([]);
-
   // useEffect(() => {
   //   setLoadedMeetup(MEETUP);
   // }, []);
@@ -31,36 +12,54 @@ const HomePage = (props) => {
 
 //! SSG :
 export async function getStaticProps(context) {
-  //! Getting data using MongoDB cluster database :
-  //* Connect the app with the database :
-  const client = await MongoClient.connect(
-    "mongodb+srv://Othmane:WGeWqQ29INLlZrLQ@cluster0.oyb2k.mongodb.net/meetups?retryWrites=true&w=majority"
+  //! Getting data from MongoDB cluster database :
+  // //* Connect the app with the database :
+  // const client = await MongoClient.connect(
+  //   "mongodb+srv://Othmane:WGeWqQ29INLlZrLQ@cluster0.oyb2k.mongodb.net/meetups?retryWrites=true&w=majority"
+  // );
+  // //* Set the database :
+  // const db = client.db();
+
+  // //* Create the collection :
+  // const meetupsCollection = db.collection("meetups");
+
+  // //* Get the collection and transform't to an array of meetups :
+  // const meetups = await meetupsCollection.find().toArray();
+
+  // //* Close the database connection :
+  // client.close();
+
+  // const newMeetups = meetups.map((meetup) => {
+  //   return {
+  //     title: meetup.title,
+  //     address: meetup.address,
+  //     image: meetup.image,
+  //     description: meetup.description,
+  //     id: meetup._id.toString(),
+  //   };
+  // });
+
+  //! Getting data from Firebase realtime database :
+  const response = await fetch(
+    "https://next-meetups-app-default-rtdb.firebaseio.com/meetup.json"
   );
-  //* Set the database :
-  const db = client.db();
 
-  //* Create the collection :
-  const meetupsCollection = db.collection("meetups");
+  const data = await response.json();
 
-  //* Get the collection and transform't to an array of meetups :
-  const meetups = await meetupsCollection.find().toArray();
-
-  //* Close the database connection :
-  client.close();
-
-  const NewMeetups = meetups.map((meetup) => {
-    return {
-      title: meetup.title,
-      address: meetup.address,
-      image: meetup.image,
-      description: meetup.description,
-      id: meetup._id.toString(),
+  const newMeetups = [];
+  for (const key in data) {
+    const meetup = {
+      id: key,
+      ...data[key],
     };
-  });
+    newMeetups.push(meetup);
+  }
+
+  console.log(newMeetups);
 
   return {
     props: {
-      loadedMeetup: NewMeetups, // will be passed to the page component as props
+      loadedMeetup: newMeetups, // will be passed to the page component as props
     },
     revalidate: 1, // the amount in seconds after which a page re-generation can occur (defaults to false or no revalidation).
   };

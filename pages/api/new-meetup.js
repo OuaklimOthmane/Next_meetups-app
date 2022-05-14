@@ -1,32 +1,48 @@
 // "api/new-meetup"
 import { MongoClient } from "mongodb";
 
-const handler = async (request, response) => {
-  if (request.method === "POST") {
-    const data = request.body;
+const handler = async (req, res) => {
+  if (req.method === "POST") {
+    const data = req.body;
+    // const data = JSON.parse(req.body);
+    // const { image, title, address, description } = data;
 
-    const { image, title, address, description } = data;
+    //! Using MongoDB cluster database :
+    // //* Connect the app with the database :
+    // const client = await MongoClient.connect(
+    //   "mongodb+srv://Othmane:WGeWqQ29INLlZrLQ@cluster0.oyb2k.mongodb.net/meetups?retryWrites=true&w=majority"
+    // );
 
-    //* Connect the app with the database :
-    const client = await MongoClient.connect(
-      "mongodb+srv://Othmane:EQZsEGfYxf3qnFS3@cluster0.oyb2k.mongodb.net/meetups?retryWrites=true&w=majority"
+    // //* Set the database :
+    // const db = client.db();
+
+    // //* Create the collection :
+    // const meetupsCollection = db.collection("meetups");
+
+    // //* insert the document(data) in the collection :
+    // const result = await meetupsCollection.insertOne(data);
+    // console.log(result);
+
+    // //* Close the database connection :
+    // client.close();
+
+    //! Using Firebase realtime database :
+    const response = await fetch(
+      "https://next-meetups-app-default-rtdb.firebaseio.com/meetup.json",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
 
-    //* Set the database :
-    const db = client.db();
-
-    //* Create the collection :
-    const meetupsCollection = db.collection("meetups");
-
-    //* insert the document(data) in the collection :
-    const result = await meetupsCollection.insertOne(data);
+    const result = await response.json();
     console.log(result);
 
-    //* Close the database connection :
-    client.close();
-
     //* Sending a response once we getting the request :
-    response.status(201).json({ message: "Meetup inserted !!" });
+    res.status(201).json({ message: "Meetup inserted !!" });
   }
 };
 

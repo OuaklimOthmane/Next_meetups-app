@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
+import Head from "next/head";
 // import { Mongodb } from "mongodb";
 import MeetupList from "../components/meetups/MeetupList";
 
@@ -8,7 +9,18 @@ const HomePage = (props) => {
   //   setLoadedMeetup(MEETUP);
   // }, []);
 
-  return <MeetupList meetups={props.loadedMeetup} />;
+  return (
+    <Fragment>
+      <Head>
+        <title>React Meetups</title>
+        <meta
+          name="description"
+          content="Browse a huge list of highly active React meetups!"
+        />
+      </Head>
+      <MeetupList meetups={props.loadedMeetup} />
+    </Fragment>
+  );
 };
 
 //! SSG :

@@ -31,9 +31,36 @@ const HomePage = (props) => {
 
 //! SSG :
 export async function getStaticProps(context) {
+  //! Getting data using MongoDB cluster database :
+  //* Connect the app with the database :
+  const client = await MongoClient.connect(
+    "mongodb+srv://Othmane:WGeWqQ29INLlZrLQ@cluster0.oyb2k.mongodb.net/meetups?retryWrites=true&w=majority"
+  );
+  //* Set the database :
+  const db = client.db();
+
+  //* Create the collection :
+  const meetupsCollection = db.collection("meetups");
+
+  //* Get the collection and transform't to an array of meetups :
+  const meetups = await meetupsCollection.find().toArray();
+
+  //* Close the database connection :
+  client.close();
+
+  const NewMeetups = meetups.map((meetup) => {
+    return {
+      title: meetup.title,
+      address: meetup.address,
+      image: meetup.image,
+      description: meetup.description,
+      id: meetup._id.toString(),
+    };
+  });
+
   return {
     props: {
-      loadedMeetup: MEETUP, // will be passed to the page component as props
+      loadedMeetup: NewMeetups, // will be passed to the page component as props
     },
     revalidate: 1, // the amount in seconds after which a page re-generation can occur (defaults to false or no revalidation).
   };
